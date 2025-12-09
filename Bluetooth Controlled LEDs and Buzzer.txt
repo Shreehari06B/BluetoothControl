@@ -1,0 +1,71 @@
+#include "BluetoothSerial.h"
+
+BluetoothSerial SerialBT;
+
+// Pin assignments
+int redLED = 5; // GPIO 5 → Red LED
+int greenLED = 18; // GPIO 18 → Green LED
+int buzzer = 19; // GPIO 19 → Buzzer
+
+void setup() {
+  Serial.begin(115200);
+  SerialBT.begin("ESP32_LED_Buzzer"); // Bluetooth device name
+
+  // Set pins as output
+  pinMode(redLED, OUTPUT);
+  pinMode(greenLED, OUTPUT);
+  pinMode(buzzer, OUTPUT);
+
+  // Start with everything OFF
+  digitalWrite(redLED, LOW);
+  digitalWrite(greenLED, LOW);
+  digitalWrite(buzzer, LOW);
+
+  Serial.println("Bluetooth device is ready!");
+}
+
+void loop() {
+  if (SerialBT.available()) {
+    char command = SerialBT.read(); // Read one character instantly
+
+    // Ignore newline, carriage return, or spaces
+    if (command == '\n' || command == '\r' || command == ' ') return;
+
+    Serial.print("Received: ");
+    Serial.println(command);
+
+    // Red LED
+    if (command == 'R') {
+      digitalWrite(redLED, HIGH);
+      SerialBT.println("Red LED ON");
+    }
+    else if (command == 'r') {
+      digitalWrite(redLED, LOW);
+      SerialBT.println("Red LED OFF");
+    }
+
+    // Green LED
+    else if (command == 'G') {
+      digitalWrite(greenLED, HIGH);
+      SerialBT.println("Green LED ON");
+    }
+    else if (command == 'g') {
+      digitalWrite(greenLED, LOW);
+      SerialBT.println("Green LED OFF");
+    }
+
+    // Buzzer
+    else if (command == 'B') {
+      digitalWrite(buzzer, HIGH);
+      SerialBT.println("Buzzer ON");
+    }
+    else if (command == 'b') {
+      digitalWrite(buzzer, LOW);
+      SerialBT.println("Buzzer OFF");
+    }
+
+    else {
+      SerialBT.println("Invalid command. Use R/r, G/g, B/b.");
+    }
+  }
+}
